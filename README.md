@@ -59,7 +59,7 @@ column: year
 column: weekday`
 
 
-<img src="data/Image/SparkifyStar.PNG" width="750" height="750">
+<img src="https://github.com/destinygit/PostgreSQL/blob/master/SparkifyStar.PNG?raw=true" width="750" height="750">
              
 **Implement etl.py:** 
 
