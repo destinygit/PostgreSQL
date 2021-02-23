@@ -130,7 +130,7 @@ def process_log_file(cur, filepath):
     
     ts = df['ts']
     tss = np.array(ts)
-    t = pd.to_datetime(df['ts'], unit='ms')
+    t = pd.to_datetime(ts, unit='ms')
     df['ts'].replace(tss, t, inplace =True)
     df =df.rename(columns=
               {
@@ -146,24 +146,22 @@ def process_log_file(cur, filepath):
     for index, row in df.iterrows():
         try:
             cur.execute(song_select, (row.song, row.artist, row.length))
+            results = cur.fetchone()
         except psycopg2.Error as e:
             print("Error: Unable to select song_id and artist_id")
             print(e)
-        results = cur.fetchone()
         if results:
             song_id, artist_id = results
         else:
-            song_id, artist_id = None, None
-            
-    # insert songplay record
-    
-    songplay_data = (row.start_time, row.user_id, row.level,song_id, artist_id,row.session_id, row.location, row.user_agent )
-    try:
-        cur.execute(songplay_table_insert, songplay_data)
-    except psycopg2.Error as e:
-        print("Error: Unable to insert into songplay table")
-        print(e)
-    conn.commit()
+            song_id, artist_id = None, None     
+        # insert songplay record
+        songplay_data = (row.start_time, row.user_id, row.level,song_id, artist_id,row.session_id, row.location, row.user_agent )
+        try:
+            cur.execute(songplay_table_insert, songplay_data)
+        except psycopg2.Error as e:
+            print("Error: Unable to insert into songplay table")
+            print(e)
+            conn.commit()
 
 def process_data(cur, conn, filepath, func):
     """
