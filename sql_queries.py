@@ -10,8 +10,8 @@ time_table_drop = 'DROP table IF EXISTS time_table CASCADE'
 
 songplay_table_create = ("CREATE TABLE IF NOT EXISTS songplay_table \
                          (songplay_id Serial Primary Key Not Null , \
-                         start_time timestamp, \
-                         user_id int, \
+                         start_time timestamp Not Null, \
+                         user_id int Not Null, \
                          level varchar, \
                          song_id varchar, \
                          artist_id varchar, \
@@ -31,7 +31,7 @@ song_table_create = ("CREATE TABLE IF NOT EXISTS song_table \
                      year int, \
                      duration numeric );")
 artist_table_create = ("CREATE TABLE IF NOT EXISTS artist_table \
-                       (artist_id varchar Not Null, \
+                       (artist_id varchar Primary Key Not Null, \
                         name varchar, \
                         location varchar, \
                         latitude numeric, \
@@ -56,28 +56,28 @@ songplay_table_insert = "INSERT INTO songplay_table \
                          session_id, \
                          location, \
                          user_agent) \
-                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO Nothing"
+                         VALUES (%s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT (songplay_id) DO Nothing"
 user_table_insert = "INSERT INTO user_table \
                         (user_id, \
                          first_name, \
                          last_name, \
                          gender, \
                          level) \
-                         VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO Nothing"
+                         VALUES (%s, %s, %s, %s, %s) ON CONFLICT (user_id) DO UPDATE SET level=EXCLUDED.level"
 song_table_insert = "INSERT INTO song_table \
                     (song_id, \
                      title, \
                      artist_id, \
                      year, \
                      duration) \
-                     VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO Nothing"
+                     VALUES (%s, %s, %s, %s, %s) ON CONFLICT (song_id) DO Nothing"
 artist_table_insert = "INSERT INTO artist_table \
                        (artist_id,\
                         name, \
                         location, \
                         latitude, \
                         longitude) \
-                        VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO Nothing"
+                        VALUES (%s, %s, %s, %s, %s) ON CONFLICT (artist_id) DO Nothing"
 time_table_insert = "INSERT INTO time_table \
                      (start_time,\
                       hour, \
@@ -86,15 +86,16 @@ time_table_insert = "INSERT INTO time_table \
                       month, \
                       year, \
                       weekday) \
-                      VALUES (%s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO Nothing"
+                      VALUES (%s, %s, %s, %s, %s, %s, %s) ON CONFLICT (start_time) DO Nothing"
 
 # FIND SONGS
 
 
 song_select = ("select st.song_id, at.artist_id \
-                FROM song_table st \
-                left join artist_table at\
-                ON st.artist_id = at.artist_id")
+                FROM song_table as st \
+                Inner join artist_table as at\
+                ON st.artist_id = at.artist_id \
+                WHERE st.title=%s AND at.name=%s AND st.duration=%s")
 
 
 # QUERY LISTS
